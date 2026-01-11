@@ -57,14 +57,32 @@ body {
     text-align: center;
 }
 
+/* 🔥 QUADRADO AMARELO COM PISCADA */
 #total {
-    font-size: 48px;
-    margin-bottom: 10px;
+    font-size: 72px;
+    font-weight: bold;
+    background: #FFD700;
+    color: #000;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.1s ease, background 0.1s ease;
+}
+
+/* Classe usada para piscar */
+.piscar {
+    background: #FFF176;
+    transform: scale(1.08);
 }
 
 #botoes {
     position: fixed;
-    bottom: 60px;
+    bottom: 120px;
     left: 0;
     width: 100%;
     text-align: center;
@@ -155,7 +173,6 @@ function iniciarTimer() {
             tempoRestante--;
             atualizarTela();
             atualizarPrevisao();
-            atualizarMinutos();
 
             if (tempoRestante <= 0) {
                 clearInterval(intervalo);
@@ -173,17 +190,14 @@ function contar() {
     }
 
     totalCantos++;
-    document.getElementById("total").innerText = totalCantos;
-}
+    const totalEl = document.getElementById("total");
+    totalEl.innerText = totalCantos;
 
-function atualizarMinutos() {
-    if (!inicio) return;
-
-    let minutosPassados = Math.floor((Date.now() - inicio) / 60000);
-
-    if (!cantosPorMinuto[minutosPassados]) {
-        cantosPorMinuto[minutosPassados] = 0;
-    }
+    // ✨ efeito de piscar
+    totalEl.classList.add("piscar");
+    setTimeout(() => {
+        totalEl.classList.remove("piscar");
+    }, 120);
 }
 
 function atualizarPrevisao() {
@@ -227,13 +241,3 @@ atualizarTela();
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
