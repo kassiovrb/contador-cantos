@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contador de Cantos</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 10px;
+}
+
+#topo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+#timer {
+  font-size: 48px;
+}
+
+#setas {
+  display: flex;
+  flex-direction: column;
+}
+
+#setas button {
+  font-size: 18px;
+  padding: 2px 8px;
+}
+
+#previsao {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+#conteudo {
+  display: flex;
+}
+
+#minutos {
+  width: 40%;
+  text-align: left;
+  font-size: 14px;
+  padding-right: 10px;
+}
+
+#ladoDireito {
+  width: 60%;
+}
+
+#contador {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+#botaoContar {
+  width: 100%;
+  height: 150px;
+  font-size: 38px;
+  margin-top: 25px;
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+.botoes {
+  margin-top: 10px;
+}
+
+button {
+  font-size: 16px;
+  padding: 8px 14px;
+  margin: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Contador de Cantos</h2>
+
+<div id="topo">
+  <div id="timer">15:00</div>
+  <div id="setas">
+    <button onclick="aumentarTempo()">⬆️</button>
+    <button onclick="diminuirTempo()">⬇️</button>
+  </div>
+</div>
+
+<div id="previsao">Previsão: 0 cantos</div>
+
+<div id="conteudo">
+  <div id="minutos"></div>
+
+  <div id="ladoDireito">
+    <div id="contador">0</div>
+
+    <button id="botaoContar" onclick="contar()">CONTAR</button>
+
+    <div class="botoes">
+      <button onclick="pausar()">PAUSE</button>
+      <button onclick="zerar()">ZERAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let tempoTotal = 900;
+let tempoAtual = tempoTotal;
+let intervalo = null;
+let rodando = false;
+
+let totalCantos = 0;
+let cantosNoMinuto = 0;
+let minutosRegistrados = 0;
+
+// controle da previsão
+let ultimoUpdatePrevisao = 0;
+
+function atualizarTimer() {
+  let min = Math.floor(tempoAtual / 60);
+  let seg = tempoAtual % 60;
+  document.getElementById("timer").innerText =
+    String(min).padStart(2, "0") + ":" + String(seg).padStart(2, "0");
+}
+
+function contar() {
+  if (!rodando) iniciarTimer();
+
+  totalCantos++;
+  cantosNoMinuto++;
+
+  document.getElementById("contador").innerText = totalCantos;
+
+  // Som
+  const beep = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=");
+  beep.play();
+
+  // Vibração
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function iniciarTimer() {
+  rodando = true;
+
+  intervalo = setInterval(() => {
+    if (tempoAtual > 0) {
+      tempoAtual--;
+
+      // Registro por minuto
+      if (tempoAtual % 60 === 0 && tempoAtual !== tempoTotal) {
+        registrarMinuto();
+      }
+
+      atualizarTimer();
+      atualizarPrevisaoCada5s();
+    } else {
+      registrarMinuto();
+      clearInterval(intervalo);
+      rodando = false;
+    }
+  }, 1000);
+}
+
+function registrarMinuto() {
+  minutosRegistrados++;
+  document.getElementById("minutos").innerHTML +=
+    `Minuto ${minutosRegistrados}: ${cantosNoMinuto} cantos<br>`;
+  cantosNoMinuto = 0;
+}
+
+function atualizarPrevisaoCada5s() {
+  let segundosPassados = tempoTotal - tempoAtual;
+
+  if (segundosPassados < 5) return;
+  if (segundosPassados - ultimoUpdatePrevisao < 5) return;
+
+  ultimoUpdatePrevisao = segundosPassados;
+
+  if (totalCantos === 0) {
+    document.getElementById("previsao").innerText = "Previsão: 0 cantos";
+    return;
+  }
+
+  let mediaPorSegundo = totalCantos / segundosPassados;
+  let previsao = Math.round(mediaPorSegundo * tempoTotal);
+
+  document.getElementById("previsao").innerText =
+    "Previsão: " + previsao + " cantos";
+}
+
+function pausar() {
+  clearInterval(intervalo);
+  rodando = false;
+}
+
+function zerar() {
+  clearInterval(intervalo);
+  rodando = false;
+
+  tempoAtual = tempoTotal;
+  totalCantos = 0;
+  cantosNoMinuto = 0;
+  minutosRegistrados = 0;
+  ultimoUpdatePrevisao = 0;
+
+  document.getElementById("contador").innerText = "0";
+  document.getElementById("minutos").innerHTML = "";
+  document.getElementById("previsao").innerText = "Previsão: 0 cantos";
+
+  atualizarTimer();
+}
+
+function aumentarTempo() {
+  if (rodando) return;
+  tempoTotal += 60;
+  tempoAtual = tempoTotal;
+  atualizarTimer();
+}
+
+function diminuirTempo() {
+  if (rodando || tempoTotal <= 60) return;
+  tempoTotal -= 60;
+  tempoAtual = tempoTotal;
+  atualizarTimer();
+}
+
+atualizarTimer();
+</script>
+
+</body>
+</html>
