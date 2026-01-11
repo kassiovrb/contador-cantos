@@ -43,28 +43,32 @@ body {
 
 #conteudo {
     display: flex;
-    margin-top: 15px;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 20px;
 }
 
+/* RETROSPECTIVA */
+#minutos {
+    width: 50%;
+    font-size: 14px;
+    padding-right: 10px;
+}
+
+/* CONTADOR À DIREITA */
 #contador {
-    width: 55%;
+    width: 45%;
     text-align: center;
 }
 
-#minutos {
-    width: 45%;
-    font-size: 14px;
-    padding-left: 10px;
-}
-
-/* Label */
+/* LABEL */
 #labelCantos {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 6px;
 }
 
-/* Quadrado */
+/* QUADRADO */
 #total {
     font-size: 72px;
     font-weight: bold;
@@ -75,7 +79,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 15px auto;
+    margin: 0 auto;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     transition: background 0.1s ease;
@@ -130,12 +134,12 @@ body {
 </div>
 
 <div id="conteudo">
+    <div id="minutos"></div>
+
     <div id="contador">
         <div id="labelCantos">CANTOS</div>
         <div id="total">0</div>
     </div>
-
-    <div id="minutos"></div>
 </div>
 
 <div id="botoes">
@@ -219,8 +223,8 @@ function verificarMinuto() {
 
     if (passou >= 1) {
         numeroMinuto++;
-        const div = document.getElementById("minutos");
-        div.innerHTML += `<div>${numeroMinuto}º minuto: ${cantosMinutoAtual} cantos</div>`;
+        document.getElementById("minutos").innerHTML +=
+            `<div>${numeroMinuto}º minuto: ${cantosMinutoAtual} cantos</div>`;
         cantosMinutoAtual = 0;
         inicioMinuto = agora;
     }
@@ -230,8 +234,6 @@ function atualizarPrevisao() {
     if (!inicio) return;
 
     let tempoDecorrido = (Date.now() - inicio) / 1000;
-    if (tempoDecorrido <= 0) return;
-
     let mediaPorSegundo = totalCantos / tempoDecorrido;
     let previsao = Math.round(mediaPorSegundo * tempoTotal);
 
