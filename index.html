@@ -57,7 +57,14 @@ body {
     text-align: center;
 }
 
-/* 🔥 QUADRADO AMARELO COM PISCADA */
+/* TEXTO "CANTOS" */
+#labelCantos {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+/* QUADRADO AMARELO */
 #total {
     font-size: 72px;
     font-weight: bold;
@@ -71,13 +78,12 @@ body {
     margin: 0 auto 15px auto;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    transition: transform 0.1s ease, background 0.1s ease;
+    transition: background 0.1s ease;
 }
 
-/* Classe usada para piscar */
+/* PISCAR VERMELHO */
 .piscar {
-    background: #FFF176;
-    transform: scale(1.08);
+    background: #FF3B3B !important;
 }
 
 #botoes {
@@ -128,6 +134,7 @@ body {
     <div id="minutos"></div>
 
     <div id="contador">
+        <div id="labelCantos">CANTOS</div>
         <div id="total">0</div>
     </div>
 </div>
@@ -147,7 +154,6 @@ let tempoRestante = tempoTotal;
 let intervalo = null;
 let totalCantos = 0;
 let pausado = false;
-let cantosPorMinuto = [];
 let inicio = null;
 
 function atualizarTela() {
@@ -193,7 +199,7 @@ function contar() {
     const totalEl = document.getElementById("total");
     totalEl.innerText = totalCantos;
 
-    // ✨ efeito de piscar
+    // pisca vermelho e volta para amarelo
     totalEl.classList.add("piscar");
     setTimeout(() => {
         totalEl.classList.remove("piscar");
@@ -226,11 +232,9 @@ function zerar() {
     tempoRestante = tempoTotal;
     totalCantos = 0;
     pausado = false;
-    cantosPorMinuto = [];
     inicio = null;
 
     document.getElementById("total").innerText = "0";
-    document.getElementById("minutos").innerHTML = "";
     document.getElementById("previsao").innerText = "Previsão: 0 cantos";
     atualizarTela();
 }
