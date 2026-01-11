@@ -39,7 +39,6 @@ body {
     margin-top: 10px;
     font-size: 20px;
     font-weight: bold;
-    color: #333;
 }
 
 #conteudo {
@@ -47,24 +46,25 @@ body {
     margin-top: 15px;
 }
 
-#minutos {
-    width: 45%;
-    font-size: 14px;
-}
-
 #contador {
     width: 55%;
     text-align: center;
 }
 
-/* TEXTO "CANTOS" */
+#minutos {
+    width: 45%;
+    font-size: 14px;
+    padding-left: 10px;
+}
+
+/* Label */
 #labelCantos {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 6px;
 }
 
-/* QUADRADO AMARELO */
+/* Quadrado */
 #total {
     font-size: 72px;
     font-weight: bold;
@@ -81,7 +81,6 @@ body {
     transition: background 0.1s ease;
 }
 
-/* PISCAR VERMELHO */
 .piscar {
     background: #FF3B3B !important;
 }
@@ -131,12 +130,12 @@ body {
 </div>
 
 <div id="conteudo">
-    <div id="minutos"></div>
-
     <div id="contador">
         <div id="labelCantos">CANTOS</div>
         <div id="total">0</div>
     </div>
+
+    <div id="minutos"></div>
 </div>
 
 <div id="botoes">
@@ -152,9 +151,15 @@ body {
 let tempoTotal = 15 * 60;
 let tempoRestante = tempoTotal;
 let intervalo = null;
+let previsaoIntervalo = null;
+
 let totalCantos = 0;
 let pausado = false;
+
 let inicio = null;
+let inicioMinuto = null;
+let cantosMinutoAtual = 0;
+let numeroMinuto = 0;
 
 function atualizarTela() {
     let min = Math.floor(tempoRestante / 60);
@@ -174,43 +179,55 @@ function ajustarTempo(valor) {
 }
 
 function iniciarTimer() {
+    inicio = Date.now();
+    inicioMinuto = inicio;
+
     intervalo = setInterval(() => {
         if (!pausado) {
             tempoRestante--;
             atualizarTela();
-            atualizarPrevisao();
+            verificarMinuto();
 
             if (tempoRestante <= 0) {
                 clearInterval(intervalo);
+                clearInterval(previsaoIntervalo);
             }
         }
     }, 1000);
+
+    previsaoIntervalo = setInterval(atualizarPrevisao, 5000);
 }
 
 function contar() {
     if (navigator.vibrate) navigator.vibrate(50);
 
-    if (!intervalo) {
-        inicio = Date.now();
-        iniciarTimer();
-    }
+    if (!intervalo) iniciarTimer();
 
     totalCantos++;
+    cantosMinutoAtual++;
+
     const totalEl = document.getElementById("total");
     totalEl.innerText = totalCantos;
 
-    // pisca vermelho e volta para amarelo
     totalEl.classList.add("piscar");
-    setTimeout(() => {
-        totalEl.classList.remove("piscar");
-    }, 120);
+    setTimeout(() => totalEl.classList.remove("piscar"), 120);
+}
+
+function verificarMinuto() {
+    let agora = Date.now();
+    let passou = Math.floor((agora - inicioMinuto) / 60000);
+
+    if (passou >= 1) {
+        numeroMinuto++;
+        const div = document.getElementById("minutos");
+        div.innerHTML += `<div>${numeroMinuto}º minuto: ${cantosMinutoAtual} cantos</div>`;
+        cantosMinutoAtual = 0;
+        inicioMinuto = agora;
+    }
 }
 
 function atualizarPrevisao() {
-    if (!inicio) {
-        document.getElementById("previsao").innerText = "Previsão: 0 cantos";
-        return;
-    }
+    if (!inicio) return;
 
     let tempoDecorrido = (Date.now() - inicio) / 1000;
     if (tempoDecorrido <= 0) return;
@@ -228,18 +245,26 @@ function pausar() {
 
 function zerar() {
     clearInterval(intervalo);
+    clearInterval(previsaoIntervalo);
+
     intervalo = null;
+    previsaoIntervalo = null;
+
     tempoRestante = tempoTotal;
     totalCantos = 0;
     pausado = false;
     inicio = null;
+    inicioMinuto = null;
+    cantosMinutoAtual = 0;
+    numeroMinuto = 0;
 
     document.getElementById("total").innerText = "0";
+    document.getElementById("minutos").innerHTML = "";
     document.getElementById("previsao").innerText = "Previsão: 0 cantos";
+
     atualizarTela();
 }
 
-setInterval(atualizarPrevisao, 5000);
 atualizarTela();
 </script>
 
