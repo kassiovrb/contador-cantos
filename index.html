@@ -2,237 +2,255 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Contador de Cantos</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 10px;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
-#topo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+header {
+    background: #222;
+    color: white;
+    text-align: center;
+    padding: 15px;
 }
 
 #timer {
-  font-size: 48px;
+    font-size: 32px;
+    margin-bottom: 10px;
 }
 
-#setas {
-  display: flex;
-  flex-direction: column;
+#controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
-#setas button {
-  font-size: 18px;
-  padding: 2px 8px;
+.control-btn {
+    font-size: 22px;
+    padding: 5px 12px;
 }
 
-#previsao {
-  font-size: 18px;
-  margin-bottom: 10px;
+main {
+    flex: 1;
+    display: flex;
+    padding: 10px;
+    gap: 10px;
 }
 
-#conteudo {
-  display: flex;
+#log {
+    width: 40%;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 14px;
 }
 
-#minutos {
-  width: 40%;
-  text-align: left;
-  font-size: 14px;
-  padding-right: 10px;
+#info {
+    width: 60%;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
 }
 
-#ladoDireito {
-  width: 60%;
+#count {
+    font-size: 48px;
+    margin: 15px 0;
 }
 
-#contador {
-  font-size: 40px;
-  margin-bottom: 10px;
+#forecast {
+    font-size: 18px;
+    color: #555;
 }
 
-#botaoContar {
-  width: 100%;
-  height: 150px;
-  font-size: 38px;
-  margin-top: 25px;
-  background-color: green;
-  color: white;
-  border: none;
-  border-radius: 8px;
+footer {
+    padding: 10px;
 }
 
-.botoes {
-  margin-top: 10px;
+#countBtn {
+    width: 100%;
+    height: 90px;
+    font-size: 36px;
+    background: #1fbf4a;
+    color: white;
+    border: none;
+    border-radius: 15px;
 }
 
-button {
-  font-size: 16px;
-  padding: 8px 14px;
-  margin: 4px;
+#countBtn:active {
+    background: #15963a;
+}
+
+.small-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.small-btns button {
+    font-size: 16px;
+    padding: 6px 12px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Contador de Cantos</h2>
-
-<div id="topo">
-  <div id="timer">15:00</div>
-  <div id="setas">
-    <button onclick="aumentarTempo()">⬆️</button>
-    <button onclick="diminuirTempo()">⬇️</button>
-  </div>
-</div>
-
-<div id="previsao">Previsão: 0 cantos</div>
-
-<div id="conteudo">
-  <div id="minutos"></div>
-
-  <div id="ladoDireito">
-    <div id="contador">0</div>
-
-    <button id="botaoContar" onclick="contar()">CONTAR</button>
-
-    <div class="botoes">
-      <button onclick="pausar()">PAUSE</button>
-      <button onclick="zerar()">ZERAR</button>
+<header>
+    <div id="timer">15:00</div>
+    <div id="controls">
+        <button class="control-btn" onclick="changeTime(-1)">⬇️</button>
+        <button class="control-btn" onclick="changeTime(1)">⬆️</button>
     </div>
-  </div>
-</div>
+</header>
+
+<main>
+    <div id="log">
+        <strong>Cantos por minuto</strong>
+        <div id="logList"></div>
+    </div>
+
+    <div id="info">
+        <div>Total de cantos</div>
+        <div id="count">0</div>
+        <div id="forecast">Previsão: 0</div>
+    </div>
+</main>
+
+<footer>
+    <div class="small-btns">
+        <button onclick="pause()">⏸️ Pausar</button>
+        <button onclick="reset()">🔄 Zerar</button>
+    </div>
+    <button id="countBtn" onclick="countCanto()">CONTAR</button>
+</footer>
 
 <script>
-let tempoTotal = 900;
-let tempoAtual = tempoTotal;
-let intervalo = null;
-let rodando = false;
+let totalTime = 15 * 60;
+let timeLeft = totalTime;
+let timer = null;
+let started = false;
+let paused = false;
 
-let totalCantos = 0;
-let cantosNoMinuto = 0;
-let minutosRegistrados = 0;
+let count = 0;
+let minuteCounts = [];
+let currentMinute = 0;
+let forecastInterval = null;
 
-// controle da previsão
-let ultimoUpdatePrevisao = 0;
+const timerEl = document.getElementById("timer");
+const countEl = document.getElementById("count");
+const forecastEl = document.getElementById("forecast");
+const logList = document.getElementById("logList");
 
-function atualizarTimer() {
-  let min = Math.floor(tempoAtual / 60);
-  let seg = tempoAtual % 60;
-  document.getElementById("timer").innerText =
-    String(min).padStart(2, "0") + ":" + String(seg).padStart(2, "0");
+function updateTimer() {
+    let min = Math.floor(timeLeft / 60);
+    let sec = timeLeft % 60;
+    timerEl.textContent = `${min}:${sec.toString().padStart(2, "0")}`;
 }
 
-function contar() {
-  if (!rodando) iniciarTimer();
+function startTimer() {
+    timer = setInterval(() => {
+        if (!paused && timeLeft > 0) {
+            timeLeft--;
+            updateTimer();
 
-  totalCantos++;
-  cantosNoMinuto++;
+            let elapsed = totalTime - timeLeft;
+            let minute = Math.floor(elapsed / 60);
 
-  document.getElementById("contador").innerText = totalCantos;
+            if (minute > currentMinute) {
+                currentMinute = minute;
+                minuteCounts.push(0);
+                updateLog();
+            }
+        }
+        if (timeLeft <= 0) clearInterval(timer);
+    }, 1000);
 
-  // Som
-  const beep = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=");
-  beep.play();
-
-  // Vibração
-  if (navigator.vibrate) navigator.vibrate(30);
+    forecastInterval = setInterval(updateForecast, 5000);
 }
 
-function iniciarTimer() {
-  rodando = true;
-
-  intervalo = setInterval(() => {
-    if (tempoAtual > 0) {
-      tempoAtual--;
-
-      // Registro por minuto
-      if (tempoAtual % 60 === 0 && tempoAtual !== tempoTotal) {
-        registrarMinuto();
-      }
-
-      atualizarTimer();
-      atualizarPrevisaoCada5s();
-    } else {
-      registrarMinuto();
-      clearInterval(intervalo);
-      rodando = false;
+function countCanto() {
+    if (!started) {
+        started = true;
+        minuteCounts.push(0);
+        startTimer();
     }
-  }, 1000);
+
+    count++;
+    minuteCounts[minuteCounts.length - 1]++;
+    countEl.textContent = count;
+
+    // vibração
+    if (navigator.vibrate) {
+        navigator.vibrate(60);
+    }
+
+    updateLog();
+    updateForecast();
 }
 
-function registrarMinuto() {
-  minutosRegistrados++;
-  document.getElementById("minutos").innerHTML +=
-    `Minuto ${minutosRegistrados}: ${cantosNoMinuto} cantos<br>`;
-  cantosNoMinuto = 0;
+function updateForecast() {
+    let elapsed = totalTime - timeLeft;
+    if (elapsed <= 0) return;
+
+    let avg = count / elapsed;
+    let prediction = Math.round(avg * totalTime);
+    forecastEl.textContent = `Previsão: ${prediction}`;
 }
 
-function atualizarPrevisaoCada5s() {
-  let segundosPassados = tempoTotal - tempoAtual;
-
-  if (segundosPassados < 5) return;
-  if (segundosPassados - ultimoUpdatePrevisao < 5) return;
-
-  ultimoUpdatePrevisao = segundosPassados;
-
-  if (totalCantos === 0) {
-    document.getElementById("previsao").innerText = "Previsão: 0 cantos";
-    return;
-  }
-
-  let mediaPorSegundo = totalCantos / segundosPassados;
-  let previsao = Math.round(mediaPorSegundo * tempoTotal);
-
-  document.getElementById("previsao").innerText =
-    "Previsão: " + previsao + " cantos";
+function updateLog() {
+    logList.innerHTML = "";
+    minuteCounts.forEach((v, i) => {
+        if (i > 0) {
+            let div = document.createElement("div");
+            div.textContent = `Minuto ${i}: ${v}`;
+            logList.appendChild(div);
+        }
+    });
 }
 
-function pausar() {
-  clearInterval(intervalo);
-  rodando = false;
+function pause() {
+    paused = !paused;
 }
 
-function zerar() {
-  clearInterval(intervalo);
-  rodando = false;
+function reset() {
+    clearInterval(timer);
+    clearInterval(forecastInterval);
 
-  tempoAtual = tempoTotal;
-  totalCantos = 0;
-  cantosNoMinuto = 0;
-  minutosRegistrados = 0;
-  ultimoUpdatePrevisao = 0;
+    totalTime = 15 * 60;
+    timeLeft = totalTime;
+    count = 0;
+    minuteCounts = [];
+    currentMinute = 0;
+    started = false;
+    paused = false;
 
-  document.getElementById("contador").innerText = "0";
-  document.getElementById("minutos").innerHTML = "";
-  document.getElementById("previsao").innerText = "Previsão: 0 cantos";
+    countEl.textContent = "0";
+    forecastEl.textContent = "Previsão: 0";
+    logList.innerHTML = "";
 
-  atualizarTimer();
+    updateTimer();
 }
 
-function aumentarTempo() {
-  if (rodando) return;
-  tempoTotal += 60;
-  tempoAtual = tempoTotal;
-  atualizarTimer();
+function changeTime(val) {
+    if (started) return;
+    totalTime += val * 60;
+    if (totalTime < 60) totalTime = 60;
+    timeLeft = totalTime;
+    updateTimer();
 }
 
-function diminuirTempo() {
-  if (rodando || tempoTotal <= 60) return;
-  tempoTotal -= 60;
-  tempoAtual = tempoTotal;
-  atualizarTimer();
-}
-
-atualizarTimer();
+updateTimer();
 </script>
 
 </body>
