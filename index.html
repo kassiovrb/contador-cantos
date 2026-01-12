@@ -18,7 +18,7 @@ body {
 }
 
 #tempo {
-    font-size: 60px;
+    font-size: min(14vw, 60px);
     font-weight: bold;
 }
 
@@ -31,13 +31,13 @@ body {
 }
 
 .btnTempo {
-    font-size: 24px;
+    font-size: min(6vw, 24px);
     padding: 5px 12px;
 }
 
 #previsao {
     margin-top: 10px;
-    font-size: 20px;
+    font-size: min(5vw, 20px);
     font-weight: bold;
 }
 
@@ -60,18 +60,18 @@ body {
 }
 
 #labelCantos {
-    font-size: 20px;
+    font-size: min(6vw, 20px);
     font-weight: bold;
     margin-bottom: 6px;
 }
 
 #total {
-    font-size: 72px;
+    font-size: min(18vw, 72px);
     font-weight: bold;
     background: #FFD700;
     color: #000;
-    width: 160px;
-    height: 160px;
+    width: min(40vw, 160px);
+    height: min(40vw, 160px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,8 +95,10 @@ body {
 
 #btnContar {
     width: 90%;
-    height: 220px;
-    font-size: 70px;
+    height: 22vh;
+    min-height: 140px;
+    max-height: 220px;
+    font-size: min(14vw, 70px);
     background: green;
     color: white;
     border: none;
@@ -108,9 +110,27 @@ body {
 }
 
 .btnSmall {
-    font-size: 16px;
+    font-size: min(4.5vw, 16px);
     padding: 8px 14px;
     margin: 0 5px;
+}
+
+/* 📱 Ajuste para telas pequenas */
+@media (max-width: 480px) {
+    #conteudo {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #minutos,
+    #contador {
+        width: 100%;
+    }
+
+    #minutos {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
 }
 </style>
 </head>
@@ -162,7 +182,6 @@ let inicioMinuto = null;
 let cantosMinutoAtual = 0;
 let numeroMinuto = 0;
 
-/* 🔊 SOM */
 let somAtivo = true;
 let audioCtx = null;
 
@@ -178,7 +197,6 @@ function tocarSom() {
 
     osc.type = "square";
     osc.frequency.value = 500;
-
     gain.gain.value = 0.1;
 
     osc.connect(gain);
@@ -232,9 +250,7 @@ function iniciarTimer() {
 
 function contar() {
     tocarSom();
-
     if (navigator.vibrate) navigator.vibrate(50);
-
     if (!intervalo) iniciarTimer();
 
     totalCantos++;
@@ -297,4 +313,3 @@ atualizarTela();
 
 </body>
 </html>
-
