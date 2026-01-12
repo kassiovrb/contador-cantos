@@ -48,27 +48,23 @@ body {
     margin-top: 20px;
 }
 
-/* RETROSPECTIVA */
 #minutos {
     width: 50%;
     font-size: 14px;
     padding-right: 10px;
 }
 
-/* CONTADOR À DIREITA */
 #contador {
     width: 45%;
     text-align: center;
 }
 
-/* LABEL */
 #labelCantos {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 6px;
 }
 
-/* QUADRADO */
 #total {
     font-size: 72px;
     font-weight: bold;
@@ -91,7 +87,7 @@ body {
 
 #botoes {
     position: fixed;
-    bottom: 50px;
+    bottom: 120px;
     left: 0;
     width: 100%;
     text-align: center;
@@ -148,6 +144,7 @@ body {
     <div id="btnsPequenos">
         <button class="btnSmall" onclick="pausar()">PAUSE</button>
         <button class="btnSmall" onclick="zerar()">ZERAR</button>
+        <button class="btnSmall" onclick="toggleSom()" id="btnSom">Som: ON</button>
     </div>
 </div>
 
@@ -164,6 +161,37 @@ let inicio = null;
 let inicioMinuto = null;
 let cantosMinutoAtual = 0;
 let numeroMinuto = 0;
+
+/* 🔊 SOM */
+let somAtivo = true;
+let audioCtx = null;
+
+function tocarSom() {
+    if (!somAtivo) return;
+
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "square";
+    osc.frequency.value = 500;
+
+    gain.gain.value = 0.1;
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    setTimeout(() => osc.stop(), 50);
+}
+
+function toggleSom() {
+    somAtivo = !somAtivo;
+    document.getElementById("btnSom").innerText = somAtivo ? "Som: ON" : "Som: OFF";
+}
 
 function atualizarTela() {
     let min = Math.floor(tempoRestante / 60);
@@ -203,6 +231,8 @@ function iniciarTimer() {
 }
 
 function contar() {
+    tocarSom();
+
     if (navigator.vibrate) navigator.vibrate(50);
 
     if (!intervalo) iniciarTimer();
@@ -219,9 +249,7 @@ function contar() {
 
 function verificarMinuto() {
     let agora = Date.now();
-    let passou = Math.floor((agora - inicioMinuto) / 60000);
-
-    if (passou >= 1) {
+    if (Math.floor((agora - inicioMinuto) / 60000) >= 1) {
         numeroMinuto++;
         document.getElementById("minutos").innerHTML +=
             `<div>${numeroMinuto}º minuto: ${cantosMinutoAtual} cantos</div>`;
@@ -232,11 +260,8 @@ function verificarMinuto() {
 
 function atualizarPrevisao() {
     if (!inicio) return;
-
     let tempoDecorrido = (Date.now() - inicio) / 1000;
-    let mediaPorSegundo = totalCantos / tempoDecorrido;
-    let previsao = Math.round(mediaPorSegundo * tempoTotal);
-
+    let previsao = Math.round((totalCantos / tempoDecorrido) * tempoTotal);
     document.getElementById("previsao").innerText =
         "Previsão: " + previsao + " cantos";
 }
@@ -272,4 +297,3 @@ atualizarTela();
 
 </body>
 </html>
-
