@@ -250,11 +250,16 @@ function iniciarTimer() {
 }
 
 function contar() {
-    manterTelaAtiva(); // 🔒 garante wake lock após interação real
+    manterTelaAtiva(); // garante wake lock após interação real
+
+    // Se ainda não iniciou o timer, apenas inicia e sai
+    if (!intervalo) {
+        iniciarTimer();
+        return;
+    }
 
     tocarSom();
     if (navigator.vibrate) navigator.vibrate(50);
-    if (!intervalo) iniciarTimer();
 
     totalCantos++;
     cantosMinutoAtual++;
@@ -336,5 +341,6 @@ manterTelaAtiva();
 
 </body>
 </html>
+
 
 
