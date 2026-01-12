@@ -41,24 +41,23 @@ body {
     font-weight: bold;
 }
 
-/* 🔹 CONTEÚDO PRINCIPAL */
+/* 🔹 ÁREA PRINCIPAL */
 #conteudo {
-    position: relative; /* necessário para o absolute do contador */
     margin-top: 20px;
 }
 
-/* 🔹 HISTÓRICO DE MINUTOS */
+/* 🔹 HISTÓRICO */
 #minutos {
-    width: 100%;
     font-size: 14px;
-    padding-right: 190px; /* espaço reservado para o contador */
+    padding-right: 190px; /* espaço fixo para o contador */
 }
 
-/* 🔹 CONTADOR FIXO À DIREITA */
+/* 🔹 CONTADOR FIXO NO CANTO DIREITO */
 #contador {
-    position: absolute;
-    top: 0;
+    position: fixed;
+    top: 140px;
     right: 10px;
+    width: 170px;
     text-align: center;
 }
 
@@ -73,8 +72,8 @@ body {
     font-weight: bold;
     background: #FFD700;
     color: #000;
-    width: min(40vw, 160px);
-    height: min(40vw, 160px);
+    width: 160px;
+    height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,7 +121,13 @@ body {
 @media (max-width: 480px) {
     #contador {
         position: static;
+        width: 100%;
         margin-top: 10px;
+    }
+
+    #total {
+        width: min(40vw, 160px);
+        height: min(40vw, 160px);
     }
 
     #minutos {
@@ -149,11 +154,11 @@ body {
 
 <div id="conteudo">
     <div id="minutos"></div>
+</div>
 
-    <div id="contador">
-        <div id="labelCantos">CANTOS</div>
-        <div id="total">0</div>
-    </div>
+<div id="contador">
+    <div id="labelCantos">CANTOS</div>
+    <div id="total">0</div>
 </div>
 
 <div id="botoes">
