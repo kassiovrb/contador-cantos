@@ -309,10 +309,40 @@ function zerar() {
 }
 
 atualizarTela();
+    
+    /* 🔒 MANTER TELA ATIVA (Wake Lock) */
+let wakeLock = null;
+
+async function manterTelaAtiva() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+
+            wakeLock.addEventListener('release', () => {
+                console.log('Wake Lock liberado');
+            });
+
+            console.log('Tela mantida ativa');
+        }
+    } catch (err) {
+        console.log('Wake Lock falhou:', err);
+    }
+}
+
+// Reativa automaticamente se o usuário sair e voltar para a página
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        manterTelaAtiva();
+    }
+});
+
+// Ativa ao abrir o site
+manterTelaAtiva();
 </script>
 
 </body>
 </html>
+
 
 
 
