@@ -168,7 +168,15 @@ function ajustarEscala() {
 
     const scaleX = window.innerWidth / baseW;
     const scaleY = window.innerHeight / baseH;
-    const scale = Math.min(scaleX, scaleY);
+    let scale = Math.min(scaleX, scaleY);
+
+    // Detecta iPhone / iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    // Se for iPhone, aumenta um pouco o tamanho geral
+    if (isIOS) {
+        scale *= 1.12; // ajuste fino: 1.08 a 1.18 conforme seu gosto
+    }
 
     const app = document.getElementById("app");
     app.style.transform = `scale(${scale})`;
@@ -340,3 +348,4 @@ document.addEventListener('visibilitychange', () => {
 
 </body>
 </html>
+
