@@ -49,7 +49,7 @@ body {
 /* 🔹 HISTÓRICO */
 #minutos {
     font-size: 14px;
-    padding-right: 190px; /* reserva espaço fixo para o contador */
+    padding-right: 190px;
 }
 
 /* 🔹 CONTADOR — SEMPRE NO CANTO DIREITO */
@@ -118,7 +118,7 @@ body {
     margin: 0 5px;
 }
 
-/* 📱 AJUSTES MOBILE (SEM MUDAR DE LADO) */
+/* 📱 AJUSTES MOBILE */
 @media (max-width: 480px) {
     #contador {
         top: 190px;
@@ -127,8 +127,8 @@ body {
     }
 
     #total {
-    width: min(45vw, 180px);
-    height: min(45vw, 180px);
+        width: min(45vw, 180px);
+        height: min(45vw, 180px);
     }
 
     #minutos {
@@ -309,44 +309,28 @@ function zerar() {
 }
 
 atualizarTela();
-    
-    /* 🔒 MANTER TELA ATIVA (Wake Lock) */
+
+/* 🔒 MANTER TELA ATIVA */
 let wakeLock = null;
 
 async function manterTelaAtiva() {
     try {
         if ('wakeLock' in navigator) {
             wakeLock = await navigator.wakeLock.request('screen');
-
-            wakeLock.addEventListener('release', () => {
-                console.log('Wake Lock liberado');
-            });
-
-            console.log('Tela mantida ativa');
         }
     } catch (err) {
         console.log('Wake Lock falhou:', err);
     }
 }
 
-// Reativa automaticamente se o usuário sair e voltar para a página
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         manterTelaAtiva();
     }
 });
 
-// Ativa ao abrir o site
 manterTelaAtiva();
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
