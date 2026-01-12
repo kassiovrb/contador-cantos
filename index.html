@@ -49,20 +49,24 @@ body {
 }
 
 #minutos {
-    width: 50%;
+    width: 60%;
     font-size: 14px;
     padding-right: 10px;
 }
 
 #contador {
-    width: 45%;
+    width: 40%;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* 👉 empurra para a direita */
 }
 
 #labelCantos {
     font-size: min(6vw, 20px);
     font-weight: bold;
     margin-bottom: 6px;
+    margin-right: 10px;
 }
 
 #total {
@@ -75,7 +79,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     transition: background 0.1s ease;
@@ -119,17 +122,22 @@ body {
 @media (max-width: 480px) {
     #conteudo {
         flex-direction: column;
-        align-items: center;
-    }
-
-    #minutos,
-    #contador {
-        width: 100%;
+        align-items: stretch;
     }
 
     #minutos {
+        width: 100%;
         font-size: 16px;
         margin-bottom: 10px;
+    }
+
+    #contador {
+        width: 100%;
+        align-items: center; /* centraliza em telas pequenas */
+    }
+
+    #labelCantos {
+        margin-right: 0;
     }
 }
 </style>
