@@ -41,32 +41,31 @@ body {
     font-weight: bold;
 }
 
+/* 🔹 CONTEÚDO PRINCIPAL */
 #conteudo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    position: relative; /* necessário para o absolute do contador */
     margin-top: 20px;
 }
 
+/* 🔹 HISTÓRICO DE MINUTOS */
 #minutos {
-    width: 60%;
+    width: 100%;
     font-size: 14px;
-    padding-right: 10px;
+    padding-right: 190px; /* espaço reservado para o contador */
 }
 
+/* 🔹 CONTADOR FIXO À DIREITA */
 #contador {
-    width: 40%;
+    position: absolute;
+    top: 0;
+    right: 10px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* 👉 empurra para a direita */
 }
 
 #labelCantos {
     font-size: min(6vw, 20px);
     font-weight: bold;
     margin-bottom: 6px;
-    margin-right: 10px;
 }
 
 #total {
@@ -88,6 +87,7 @@ body {
     background: #FF3B3B !important;
 }
 
+/* 🔹 BOTÕES */
 #botoes {
     position: fixed;
     bottom: 48px;
@@ -118,26 +118,16 @@ body {
     margin: 0 5px;
 }
 
-/* 📱 Ajuste para telas pequenas */
+/* 📱 TELAS PEQUENAS */
 @media (max-width: 480px) {
-    #conteudo {
-        flex-direction: column;
-        align-items: stretch;
+    #contador {
+        position: static;
+        margin-top: 10px;
     }
 
     #minutos {
-        width: 100%;
+        padding-right: 0;
         font-size: 16px;
-        margin-bottom: 10px;
-    }
-
-    #contador {
-        width: 100%;
-        align-items: center; /* centraliza em telas pequenas */
-    }
-
-    #labelCantos {
-        margin-right: 0;
     }
 }
 </style>
@@ -195,10 +185,7 @@ let audioCtx = null;
 
 function tocarSom() {
     if (!somAtivo) return;
-
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -266,7 +253,6 @@ function contar() {
 
     const totalEl = document.getElementById("total");
     totalEl.innerText = totalCantos;
-
     totalEl.classList.add("piscar");
     setTimeout(() => totalEl.classList.remove("piscar"), 120);
 }
