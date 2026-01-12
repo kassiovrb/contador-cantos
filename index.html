@@ -12,6 +12,10 @@ html, body {
     margin: 0;
     overflow: hidden;
     background: #f2f2f2;
+    /* Ajuste exclusivo para iPhone */
+body.ios #btnContar {
+    height: 260px;      /* era 220px */
+    font-size: 80px;    /* era 70px */
 }
 
 #app {
@@ -344,9 +348,15 @@ document.addEventListener('visibilitychange', () => {
         manterTelaAtiva();
     }
 });
+    // Detecta iPhone / iOS e marca no body
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+if (isIOS) {
+    document.body.classList.add("ios");
+}
 </script>
 
 </body>
 </html>
+
 
 
