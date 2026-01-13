@@ -342,67 +342,7 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js");
 }
 </script>
-
-    <div id="anuncioOverlay" style="
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-">
-    <div style="
-        background: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        width: 80%;
-        max-width: 320px;
-        text-align: center;
-        font-family: Arial;
-    ">
-        <h3 style="margin-top:0">Apoie o projeto</h3>
-        <p style="font-size:14px">
-            Este contador é gratuito.  
-            me siga no Instagram
-        </p>
-
-        <a href="https://www.instagram.com/kassiovrb/#" target="_blank"
-           style="
-             display:block;
-             margin:12px 0;
-             padding:10px;
-             background:#28a745;
-             color:#fff;
-             text-decoration:none;
-             border-radius:8px;
-           ">
-           Conhecer
-        </a>
-
-        <button onclick="fecharAnuncio()" style="
-            border:none;
-            background:#ccc;
-            padding:8px 14px;
-            border-radius:6px;
-        ">
-            Fechar
-        </button>
-    </div>
-</div>
-
-<script>
-function fecharAnuncio() {
-    document.getElementById("anuncioOverlay").style.display = "none";
-    sessionStorage.setItem("anuncioVisto", "1");
-}
-
-// Mostra apenas na primeira abertura da sessão
-if (!sessionStorage.getItem("anuncioVisto")) {
-    document.getElementById("anuncioOverlay").style.display = "flex";
-}
-</script>
-
 </body>
 </html>
+
 
