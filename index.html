@@ -26,16 +26,6 @@ html, body {
 
 #topo {
     text-align: center;
-    position: relative; /* referência para posicionamento */
-}
-
-#btnsPequenos {
-    position: absolute;
-    top: 2px;
-    right: 280px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
 }
 
 #tempo {
@@ -113,10 +103,6 @@ html, body {
     text-align: center;
 }
 
-#btnContar.ativo {
-    filter: brightness(70%);
-}
-
 #btnContar {
     width: calc(95% + 120px);
     height: 270px;
@@ -129,10 +115,6 @@ html, body {
 
 #btnsPequenos {
     margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
 }
 
 .btnSmall {
@@ -155,11 +137,6 @@ html, body {
         <button class="btnTempo" onclick="ajustarTempo(-1)">▼</button>
     </div>
 
-<div id="btnsPequenos">
-        <button class="btnSmall" onclick="pausar()">PAUSE</button>
-        <button class="btnSmall" onclick="zerar()">ZERAR</button>
-        <button class="btnSmall" onclick="toggleSom()" id="btnSom">Som: ON</button>
-    </div>
     <div id="previsao">Previsão: 0 cantos</div>
 </div>
 
@@ -174,6 +151,12 @@ html, body {
 
 <div id="botoes">
     <button id="btnContar" onclick="contar()">CONTAR</button>
+
+    <div id="btnsPequenos">
+        <button class="btnSmall" onclick="pausar()">PAUSE</button>
+        <button class="btnSmall" onclick="zerar()">ZERAR</button>
+        <button class="btnSmall" onclick="toggleSom()" id="btnSom">Som: ON</button>
+    </div>
 </div>
 
 </div>
@@ -273,10 +256,6 @@ function iniciarTimer() {
 function contar() {
     manterTelaAtiva();
 
-    const btn = document.getElementById("btnContar");
-    btn.classList.add("ativo");
-    setTimeout(() => btn.classList.remove("ativo"), 120);
-
     if (!intervalo) {
         iniciarTimer();
         return;
@@ -363,6 +342,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js");
 }
 </script>
-
 </body>
 </html>
+
+
+
