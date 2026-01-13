@@ -57,7 +57,7 @@ html, body {
 }
 
 #minutos {
-    font-size: 18px;
+    font-size: 16px;
     padding-right: 190px;
 }
 
@@ -336,17 +336,12 @@ document.addEventListener('visibilitychange', () => {
         manterTelaAtiva();
     }
 });
+
+/* 📦 OFFLINE – registra o Service Worker */
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+}
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
