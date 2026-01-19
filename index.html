@@ -15,9 +15,7 @@
 <title>Contador de Cantos</title>
 
 <style>
-* {
-    touch-action: manipulation;
-}
+* { touch-action: manipulation; }
 
 html, body {
     width: 100%;
@@ -37,14 +35,9 @@ html, body {
     box-sizing: border-box;
 }
 
-#topo {
-    text-align: center;
-}
+#topo { text-align: center; }
 
-#tempo {
-    font-size: 60px;
-    font-weight: bold;
-}
+#tempo { font-size: 60px; font-weight: bold; }
 
 #controleTempo {
     display: flex;
@@ -54,10 +47,7 @@ html, body {
     margin-top: 6px;
 }
 
-.btnTempo {
-    font-size: 24px;
-    padding: 5px 12px;
-}
+.btnTempo { font-size: 24px; padding: 5px 12px; }
 
 #previsao {
     margin-top: 10px;
@@ -65,9 +55,7 @@ html, body {
     font-weight: bold;
 }
 
-#conteudo {
-    margin-top: 20px;
-}
+#conteudo { margin-top: 20px; }
 
 #minutos {
     font-size: 16px;
@@ -83,11 +71,7 @@ html, body {
     z-index: 10;
 }
 
-#labelCantos {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 6px;
-}
+#labelCantos { font-size: 20px; font-weight: bold; margin-bottom: 6px; }
 
 #total {
     font-size: 72px;
@@ -104,9 +88,7 @@ html, body {
     transition: background 0.1s ease;
 }
 
-.piscar {
-    background: #FF3B3B !important;
-}
+.piscar { background: #FF3B3B !important; }
 
 #botoes {
     position: fixed;
@@ -148,7 +130,6 @@ html, body {
 <div id="app">
 
 <div id="topo">
-
     <div id="btnsPequenos">
         <button class="btnSmall" onclick="pausar()">PAUSE</button>
         <button class="btnSmall" onclick="zerar()">ZERAR</button>
@@ -185,19 +166,159 @@ html, body {
 function ajustarEscala() {
     const baseW = 390;
     const baseH = 844;
-
-    const scaleX = window.innerWidth / baseW;
-    const scaleY = window.innerHeight / baseH;
-    const scale = Math.min(scaleX, scaleY);
-
-    const app = document.getElementById("app");
-    app.style.transform = `scale(${scale})`;
+    const scale = Math.min(window.innerWidth / baseW, window.innerHeight / baseH);
+    document.getElementById("app").style.transform = `scale(${scale})`;
 }
-
 window.addEventListener("resize", ajustarEscala);
 ajustarEscala();
 
-/* (todo o restante do seu JS permanece exatamente igual) */
+let tempoTotal = 15 * 60;
+let tempoRestante = tempoTotal;
+let intervalo = null;
+let previsaoIntervalo = null;
+
+let totalCantos = 0;
+let pausado = false;
+
+let inicio = null;
+let inicioMinuto = null;
+let cantosMinutoAtual = 0;
+let numeroMinuto = 0;
+
+let somAtivo = true;
+let audioCtx = null;
+
+function tocarSom() {
+    if (!somAtivo) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = 500;
+    gain.gain.value = 0.1;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    setTimeout(() => osc.stop(), 50);
+}
+
+function toggleSom() {
+    somAtivo = !somAtivo;
+    document.getElementById("btnSom").innerText = somAtivo ? "Som: ON" : "Som: OFF";
+}
+
+function atualizarTela() {
+    let min = Math.floor(tempoRestante / 60);
+    let seg = tempoRestante % 60;
+    document.getElementById("tempo").innerText =
+        String(min).padStart(2, "0") + ":" + String(seg).padStart(2, "0");
+}
+
+function ajustarTempo(valor) {
+    if (intervalo) return;
+    let minutos = tempoTotal / 60 + valor;
+    if (minutos < 1) return;
+    tempoTotal = minutos * 60;
+    tempoRestante = tempoTotal;
+    document.getElementById("tempoMin").innerText = minutos + " min";
+    atualizarTela();
+}
+
+function iniciarTimer() {
+    inicio = Date.now();
+    inicioMinuto = inicio;
+
+    intervalo = setInterval(() => {
+        if (!pausado) {
+            tempoRestante--;
+            atualizarTela();
+            verificarMinuto();
+            if (tempoRestante <= 0) {
+                clearInterval(intervalo);
+                clearInterval(previsaoIntervalo);
+            }
+        }
+    }, 1000);
+
+    previsaoIntervalo = setInterval(atualizarPrevisao, 3000);
+}
+
+function contar() {
+    manterTelaAtiva();
+    if (!intervalo) {
+        iniciarTimer();
+        return;
+    }
+    tocarSom();
+    if (navigator.vibrate) navigator.vibrate(50);
+    totalCantos++;
+    cantosMinutoAtual++;
+    const totalEl = document.getElementById("total");
+    totalEl.innerText = totalCantos;
+    totalEl.classList.add("piscar");
+    setTimeout(() => totalEl.classList.remove("piscar"), 120);
+}
+
+function verificarMinuto() {
+    let agora = Date.now();
+    if (Math.floor((agora - inicioMinuto) / 60000) >= 1) {
+        numeroMinuto++;
+        document.getElementById("minutos").innerHTML +=
+            `<div>${numeroMinuto}º minuto: ${cantosMinutoAtual} cantos</div>`;
+        cantosMinutoAtual = 0;
+        inicioMinuto = agora;
+    }
+}
+
+function atualizarPrevisao() {
+    if (!inicio) return;
+    let tempoDecorrido = (Date.now() - inicio) / 1000;
+    let previsao = Math.round((totalCantos / tempoDecorrido) * tempoTotal);
+    document.getElementById("previsao").innerText = "Previsão: " + previsao + " cantos";
+}
+
+function pausar() { pausado = !pausado; }
+
+function zerar() {
+    clearInterval(intervalo);
+    clearInterval(previsaoIntervalo);
+    intervalo = null;
+    previsaoIntervalo = null;
+    tempoRestante = tempoTotal;
+    totalCantos = 0;
+    pausado = false;
+    inicio = null;
+    inicioMinuto = null;
+    cantosMinutoAtual = 0;
+    numeroMinuto = 0;
+    document.getElementById("total").innerText = "0";
+    document.getElementById("minutos").innerHTML = "";
+    document.getElementById("previsao").innerText = "Previsão: 0 cantos";
+    atualizarTela();
+}
+
+atualizarTela();
+
+/* Wake Lock */
+let wakeLock = null;
+async function manterTelaAtiva() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch (e) {}
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        manterTelaAtiva();
+    }
+});
+
+/* Offline */
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+}
 </script>
 </body>
 </html>
