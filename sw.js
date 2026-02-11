@@ -1,4 +1,4 @@
-const CACHE_NAME = "contador-cantos-v16";
+const CACHE_NAME = "contador-cantos-v17";
 const FILES_TO_CACHE = [
   "./",
   "./index.html"
