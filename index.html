@@ -2,27 +2,47 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-
-<!-- Bloqueio de zoom -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<!-- PWA / Modo App -->
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Contador de Cantos">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contador de Cantos</title>
 
 <style>
-* { touch-action: manipulation; }
-
 html, body {
     width: 100%;
     height: 100%;
     margin: 0;
     overflow: hidden;
     background: #f2f2f2;
+}
+#areaCronometro{
+    display:flex;
+    justify-content:flex-end; 
+    align-items:center;
+    gap:40px; 
+    padding-right:50px; 
+    margin-top: 25px;
+}
+
+#ladoTempo{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+#botoesTempo{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.btnTempoAcao{
+    width:90px;
+    height:45px;
+    border:none;
+    border-radius:10px;
+    background:#1a2020;
+    color:rgb(252, 249, 249);
+    font-weight:bold;
+    cursor:pointer;
 }
 
 #app {
@@ -35,9 +55,14 @@ html, body {
     box-sizing: border-box;
 }
 
-#topo { text-align: center; }
+#topo {
+    text-align: center;
+}
 
-#tempo { font-size: 60px; font-weight: bold; }
+#tempo {
+    font-size: 60px;
+    font-weight: bold;
+}
 
 #controleTempo {
     display: flex;
@@ -47,15 +72,23 @@ html, body {
     margin-top: 6px;
 }
 
-.btnTempo { font-size: 24px; padding: 5px 12px; }
+.btnTempo {
+    font-size: 24px;
+    padding: 5px 12px;
+}
 
 #previsao {
     margin-top: 10px;
     font-size: 20px;
     font-weight: bold;
+    text-align:left;      
+    padding-left:140px;   
 }
 
-#conteudo { margin-top: 20px; }
+
+#conteudo {
+    margin-top: 20px;
+}
 
 #minutos {
     font-size: 16px;
@@ -71,7 +104,11 @@ html, body {
     z-index: 10;
 }
 
-#labelCantos { font-size: 20px; font-weight: bold; margin-bottom: 6px; }
+#labelCantos {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
 
 #total {
     font-size: 72px;
@@ -88,7 +125,9 @@ html, body {
     transition: background 0.1s ease;
 }
 
-.piscar { background: #FF3B3B !important; }
+.piscar {
+    background: #FF3B3B !important;
+}
 
 #botoes {
     position: fixed;
@@ -99,7 +138,7 @@ html, body {
 }
 
 #btnContar {
-    width: calc(95% + 120px);
+    width: calc(95% + 50px);
     height: 270px;
     font-size: 70px;
     background: green;
@@ -113,15 +152,42 @@ html, body {
     justify-content: center;
     gap: 8px;
     margin-bottom: 8px;
+    flex-wrap: wrap; 
 }
 
 .btnSmall {
     font-size: 16px;
     padding: 8px 14px;
-    background: #F5E6C8;
+    background: #F5E6C8;   
     color: #000;
     border: 1px solid #D8C9A6;
     border-radius: 8px;
+}
+.modal{
+    position: fixed;
+    inset:0;
+    background: rgba(0,0,0,.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+}
+
+.modalBox{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    width:80%;
+    max-width:300px;
+    text-align:center;
+    max-height:70vh;
+    overflow-y:auto;
+}
+
+.modal input{
+    width:90%;
+    padding:8px;
+    font-size:16px;
 }
 </style>
 </head>
@@ -130,19 +196,42 @@ html, body {
 <div id="app">
 
 <div id="topo">
+
+    <!-- Botões pequenos agora ficam no topo -->
     <div id="btnsPequenos">
-        <button class="btnSmall" onclick="pausar()">PAUSE</button>
-        <button class="btnSmall" onclick="zerar()">ZERAR</button>
-        <button class="btnSmall" onclick="toggleSom()" id="btnSom">Som: ON</button>
+    <button class="btnSmall" onclick="pausar()">PAUSE</button>
+    <button class="btnSmall" onclick="zerar()">ZERAR</button>
+   </div>
+
+   <div id="areaCronometro">
+
+     <div id="botoesTempo">
+
+        <button onclick="abrirSalvar()" class="btnTempoAcao">
+             SALVAR CANTADA
+        </button>
+
+        <button onclick="verHistorico()" class="btnTempoAcao">
+           CANTADAS SALVA
+        </button>
+
+    </div>
+    <div id="ladoTempo">
+
+        <div id="tempo">15:00</div>
+
+        <div id="controleTempo">
+            <button class="btnTempo" onclick="ajustarTempo(1)">▲</button>
+            <span id="tempoMin">15 min</span>
+            <button class="btnTempo" onclick="ajustarTempo(-1)">▼</button>
+        </div>
+
     </div>
 
-    <div id="tempo">15:00</div>
 
-    <div id="controleTempo">
-        <button class="btnTempo" onclick="ajustarTempo(1)">▲</button>
-        <span id="tempoMin">15 min</span>
-        <button class="btnTempo" onclick="ajustarTempo(-1)">▼</button>
-    </div>
+   
+
+</div>
 
     <div id="previsao">Previsão: 0 cantos</div>
 </div>
@@ -162,13 +251,172 @@ html, body {
 
 </div>
 
+<!-- MODAL SALVAR -->
+<div id="modalSalvar" class="modal">
+    <div class="modalBox">
+        <h3>Nome da ave</h3>
+        <input id="nomeAve" placeholder="Ex: Trinca Ferro do João"/>
+        <br><br>
+        <button onclick="confirmarSalvar()">SALVAR</button>
+        <button onclick="fecharModal()">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL HISTORICO -->
+<div id="modalHistorico" class="modal">
+    <div class="modalBox">
+        <h3>Histórico</h3>
+        <div id="listaHistorico"></div>
+        <br>
+        <button onclick="fecharHistorico()">Fechar</button>
+    </div>
+</div>
+
+
 <script>
+
+    function abrirSalvar(){
+    document.getElementById("modalSalvar").style.display="flex";
+}
+function fecharModal(){
+    document.getElementById("modalSalvar").style.display="none";
+}
+
+function finalizarContagem(){
+
+    // Se ainda não salvou o último minuto
+    if(cantosMinutoAtual >= 0){
+
+        numeroMinuto++;
+
+        document.getElementById("minutos").innerHTML +=
+            `<div>${numeroMinuto}º minuto: ${cantosMinutoAtual} cantos</div>`;
+    }
+
+}
+
+function confirmarSalvar(){
+
+    const nome = document.getElementById("nomeAve").value.trim();
+
+    if(!nome){
+        alert("Digite o nome da ave");
+        return;
+    }
+
+    const data = new Date().toLocaleDateString("pt-BR");
+
+    const minutos = Math.floor((tempoTotal - tempoRestante)/60);
+    const segundos = (tempoTotal - tempoRestante)%60;
+
+    const tempoRodado =
+        String(minutos).padStart(2,"0")+":"+
+        String(segundos).padStart(2,"0");
+
+    const registro = {
+        nome,
+        data,
+        tempo: tempoRodado,
+        cantos: totalCantos
+    };
+
+    let historico =
+        JSON.parse(localStorage.getItem("historicoCantos")) || [];
+
+    historico.unshift(registro);
+
+    localStorage.setItem(
+        "historicoCantos",
+        JSON.stringify(historico)
+    );
+
+    fecharModal();
+    document.getElementById("nomeAve").value="";
+}
+
+function verHistorico(){
+
+    const lista = document.getElementById("listaHistorico");
+    lista.innerHTML="";
+
+    let historico =
+        JSON.parse(localStorage.getItem("historicoCantos")) || [];
+
+    if(historico.length===0){
+        lista.innerHTML="<p>Nenhuma cantada salva.</p>";
+    }else{
+
+       historico.forEach((item,index)=>{
+           lista.innerHTML += `
+    <div style="
+        border-bottom:1px solid #ddd;
+        padding:8px;
+        text-align:left;
+        position:relative;
+    ">
+
+    <button onclick="excluirCantada(${index})"
+        style="
+            position:absolute;
+            right:5px;
+            top:5px;
+            border:none;
+            background:#ff4d4d;
+            color:white;
+            border-radius:6px;
+            padding:4px 6px;
+            font-size:12px;
+            cursor:pointer;
+        ">
+        excluir cantada🗑️
+    </button>
+
+    🐦 <b>${item.nome}</b><br>
+    📅 ${item.data}<br>
+    ⏱️ ${item.tempo}<br>
+    🔊 ${item.cantos} cantos
+    </div>
+`;
+        });
+    }
+
+    document.getElementById("modalHistorico").style.display="flex";
+}
+
+function fecharHistorico(){
+    document.getElementById("modalHistorico").style.display="none";
+}
+
+function excluirCantada(index){
+
+    if(!confirm("Excluir esta cantada?"))
+        return;
+
+    let historico =
+        JSON.parse(localStorage.getItem("historicoCantos")) || [];
+
+    historico.splice(index,1);
+
+    localStorage.setItem(
+        "historicoCantos",
+        JSON.stringify(historico)
+    );
+
+    verHistorico(); // recarrega a lista
+}
+
 function ajustarEscala() {
     const baseW = 390;
     const baseH = 844;
-    const scale = Math.min(window.innerWidth / baseW, window.innerHeight / baseH);
-    document.getElementById("app").style.transform = `scale(${scale})`;
+
+    const scaleX = window.innerWidth / baseW;
+    const scaleY = window.innerHeight / baseH;
+    const scale = Math.min(scaleX, scaleY);
+
+    const app = document.getElementById("app");
+    app.style.transform = `scale(${scale})`;
 }
+
 window.addEventListener("resize", ajustarEscala);
 ajustarEscala();
 
@@ -191,13 +439,17 @@ let audioCtx = null;
 function tocarSom() {
     if (!somAtivo) return;
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+
     osc.type = "square";
     osc.frequency.value = 500;
     gain.gain.value = 0.1;
+
     osc.connect(gain);
     gain.connect(audioCtx.destination);
+
     osc.start();
     setTimeout(() => osc.stop(), 50);
 }
@@ -233,10 +485,15 @@ function iniciarTimer() {
             tempoRestante--;
             atualizarTela();
             verificarMinuto();
+
             if (tempoRestante <= 0) {
-                clearInterval(intervalo);
-                clearInterval(previsaoIntervalo);
-            }
+
+    finalizarContagem(); 
+
+    clearInterval(intervalo);
+    clearInterval(previsaoIntervalo);
+}
+
         }
     }, 1000);
 
@@ -245,14 +502,18 @@ function iniciarTimer() {
 
 function contar() {
     manterTelaAtiva();
+
     if (!intervalo) {
         iniciarTimer();
         return;
     }
+
     tocarSom();
     if (navigator.vibrate) navigator.vibrate(50);
+
     totalCantos++;
     cantosMinutoAtual++;
+
     const totalEl = document.getElementById("total");
     totalEl.innerText = totalCantos;
     totalEl.classList.add("piscar");
@@ -274,16 +535,21 @@ function atualizarPrevisao() {
     if (!inicio) return;
     let tempoDecorrido = (Date.now() - inicio) / 1000;
     let previsao = Math.round((totalCantos / tempoDecorrido) * tempoTotal);
-    document.getElementById("previsao").innerText = "Previsão: " + previsao + " cantos";
+    document.getElementById("previsao").innerText =
+        "Previsão: " + previsao + " cantos";
 }
 
-function pausar() { pausado = !pausado; }
+function pausar() {
+    pausado = !pausado;
+}
 
 function zerar() {
     clearInterval(intervalo);
     clearInterval(previsaoIntervalo);
+
     intervalo = null;
     previsaoIntervalo = null;
+
     tempoRestante = tempoTotal;
     totalCantos = 0;
     pausado = false;
@@ -291,22 +557,25 @@ function zerar() {
     inicioMinuto = null;
     cantosMinutoAtual = 0;
     numeroMinuto = 0;
+
     document.getElementById("total").innerText = "0";
     document.getElementById("minutos").innerHTML = "";
     document.getElementById("previsao").innerText = "Previsão: 0 cantos";
+
     atualizarTela();
 }
 
 atualizarTela();
 
-/* Wake Lock */
+/* 🔒 Wake Lock */
 let wakeLock = null;
+
 async function manterTelaAtiva() {
     try {
         if ('wakeLock' in navigator) {
             wakeLock = await navigator.wakeLock.request('screen');
         }
-    } catch (e) {}
+    } catch (err) {}
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -315,7 +584,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-/* Offline */
+/* 📦 OFFLINE – registra o Service Worker */
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js");
 }
